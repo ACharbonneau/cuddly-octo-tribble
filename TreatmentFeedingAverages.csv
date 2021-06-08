@@ -1,0 +1,10 @@
+﻿Treatment,Feeding,Estimate,,
+Black,Full,48.3,(Intercept)     ,48.2625
+Black,Half,79.8,Treatmentgreen  ,0.04167
+Black,None,44.8,Treatmentblue   ,24.10417
+Green,Full,48.3,FeedingHalfFood ,31.48889
+Green,Half,79.8,FeedingNoFood   ,-3.44074
+Green,None,44.9,,
+Blue,Full,72.4,,
+Blue,Half,103.9,,
+Blue,None,68.9,,

@@ -1,0 +1,28 @@
+﻿Treatment,Feeding,Container,Estimate,(Intercept)    ,39.88056
+Black,Full,1,39.9,Treatmentgreen ,0.04167
+Black,Full,2,51.3,Treatmentblue  ,24.10417
+Black,Full,3,53.6,FeedingHalfFood,31.48889
+Black,Half,1,71.4,FeedingNoFood  ,-3.44074
+Black,Half,2,82.8,Container2     ,11.39583
+Black,Half,3,85.1,Container3     ,13.75
+Black,None,1,36.4,,
+Black,None,2,47.8,,
+Black,None,3,50.2,,
+Green,Full,1,39.9,,
+Green,Full,2,51.3,,
+Green,Full,3,53.7,,
+Green,Half,1,71.4,,
+Green,Half,2,82.8,,
+Green,Half,3,85.2,,
+Green,None,1,36.5,,
+Green,None,2,47.9,,
+Green,None,3,50.2,,
+Blue,Full,1,64.0,,
+Blue,Full,2,75.4,,
+Blue,Full,3,77.7,,
+Blue,Half,1,95.5,,
+Blue,Half,2,106.9,,
+Blue,Half,3,109.2,,
+Blue,None,1,60.5,,
+Blue,None,2,71.9,,
+Blue,None,3,74.3,,

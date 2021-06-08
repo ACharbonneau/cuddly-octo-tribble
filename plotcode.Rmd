@@ -1,0 +1,291 @@
+---
+title: "RNAseq Intuition Plots"
+author: "Amanda Charbonneau"
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    code_folding: hide
+    collapsed: no
+    df_print: paged
+    number_sections: yes
+    theme: cerulean
+    toc: yes
+    toc_depth: 5
+    toc_float: yes
+  html_notebook:
+    toc: yes
+    toc_depth: 5
+---
+
+```{r setup, include=FALSE}
+
+library(ggplot2)
+
+library(lme4)
+
+knitr::opts_chunk$set(echo = TRUE, message = F)
+
+
+
+```
+
+```{r formatting}
+
+fakeexp <- read.csv("fakeexp.csv")
+
+fakeexp$Treatment <- factor(fakeexp$Treatment, levels = c("black", "green", "blue"))
+
+fakeexp$order <- c(1:144)
+
+fakeexp$center <- scale(fakeexp$order, center = T, scale = F)
+
+fakeexp$Container <- as.factor(fakeexp$Container)
+
+fakeexp$Lane <- as.factor(fakeexp$Lane)
+
+fakeexp$LP_Date <- as.factor(fakeexp$LP_Date)
+
+fakeexp$New_Date <- as.factor(fakeexp$New_Date)
+
+fakeexp$New_Place <- as.factor(fakeexp$New_Place)
+
+fakeexp$Feeding <- as.factor(fakeexp$Feeding)
+
+fakeexp$Prepper <- as.factor(fakeexp$Prepper)
+
+```
+
+## Our experimental data in a  scatterplot
+
+```{r basicscatter}
+
+plot(fakeexp$order, fakeexp$ReadCount, pch=16, xlab="Row Number", ylab = "Read Count")
+```
+
+## ReadCount arranged by Row and modeled means
+
+```{r lmScatter}
+ggplot(fakeexp, aes(order, ReadCount)) + 
+  geom_point() + geom_smooth(method = lm) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) + 
+  xlab(label = "") + ylab(label = "Read Count")
+
+
+lm(ReadCount~1, data = fakeexp)
+
+```
+
+## GeneX ~ Feeding and modeled means
+
+```{r ReadbyFeeding}
+ggplot(fakeexp, aes(Row, ReadCount, col=Feeding)) + 
+  geom_point() + 
+    geom_smooth(method = lm) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) + 
+  xlab(label = "") + ylab(label = "Read Count") 
+
+summary(lm(ReadCount~Feeding, data = fakeexp))
+
+
+```
+## GeneX ~ Treatment and modeled means
+
+```{r ReadbyTreatment}
+ggplot(fakeexp, aes(Row, ReadCount, col=Treatment)) + 
+  geom_point(color=as.character(fakeexp$color)) + 
+    geom_smooth(method = lm) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) + 
+  xlab(label = "") + ylab(label = "Read Count") +
+  scale_color_manual(values = c("black", "darkgreen","blue3"))
+
+summary(lm(ReadCount~Treatment, data = fakeexp))
+
+
+```
+
+## GeneX ~ Treatment + Feeding and modeled means
+```{r ReadbyTreatmentFeeding}
+ggplot(fakeexp, aes(Row, ReadCount, col=Treatment, shape=Feeding)) + 
+  geom_point(color=as.character(fakeexp$color)) + geom_smooth(method = lm) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) + 
+  xlab(label = "") + ylab(label = "Read Count") +
+  scale_color_manual(values = c("black", "darkgreen","blue3"))
+
+summary(lm(ReadCount~Treatment+Feeding, data = fakeexp))
+
+```
+
+## GeneX ~ Container
+
+```{r ReadbyContainer}
+ggplot(fakeexp, aes(Row, ReadCount, col=Container)) + 
+  geom_point() + 
+    geom_smooth(method = lm) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) + 
+  xlab(label = "") + ylab(label = "Read Count") 
+
+
+
+```
+## Dealing with Blocking 
+
+ReadCount~Treatment+Feeding+Container modeled means
+
+```{r RemovingBlockingEffects}
+summary(lm(ReadCount~Treatment+Feeding+Container, data = fakeexp))
+```
+
+## GeneX ~ Lane and GeneX ~ LP_Date 
+
+With a confounded model of both
+
+```{r ConfoundingBlockingEffects}
+ggplot(fakeexp, aes(Row, ReadCount, col=Lane)) + 
+  geom_point() + 
+    geom_smooth(method = lm) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) + 
+  xlab(label = "") + ylab(label = "Read Count") 
+
+ggplot(fakeexp, aes(Row, ReadCount, col=LP_Date)) + 
+  geom_point() + 
+    geom_smooth(method = lm) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) + 
+  xlab(label = "") + ylab(label = "Read Count") 
+
+summary(lm(ReadCount~Lane+LP_Date, data = fakeexp))
+
+
+```
+
+
+## GeneX ~ Feeding and GeneX ~ Prepper
+
+
+```{r ReadbyTreatmentPrepper}
+ggplot(fakeexp, aes(Row, ReadCount, col=Treatment, shape=Prepper)) + 
+  geom_point(color=as.character(fakeexp$color)) + geom_smooth(method = lm) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) + 
+  xlab(label = "") + ylab(label = "Read Count") +
+  scale_color_manual(values = c("black", "darkgreen","blue3"))
+```
+
+
+## A confounding-like problem
+
+```{r ImpossibleCombos}
+ggplot(fakeexp, aes(Row, ReadCount, col=Lane)) + 
+  geom_point() + 
+    geom_smooth(method = lm) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) + 
+  xlab(label = "") + ylab(label = "Read Count") 
+
+ggplot(fakeexp, aes(Row, ReadCount, col=New_Date)) + 
+  geom_point() + 
+    geom_smooth(method = lm) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) + 
+  xlab(label = "") + ylab(label = "Read Count") 
+
+summary(lm(ReadCount~Lane+New_Date, data = fakeexp))
+
+
+```
+
+
+
+## GeneX ~ Treatment + Feeding + Container
+
+```{r RunningOutofData}
+ggplot(fakeexp, aes(Row, ReadCount, col=Treatment, shape=Feeding)) + 
+  geom_point(color=as.character(fakeexp$color)) + geom_smooth(method = lm) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) + 
+  xlab(label = "") + ylab(label = "Read Count") +
+  scale_color_manual(values = c("black", "darkgreen","blue3")) +
+ facet_grid(~Container)
+
+summary(lm(ReadCount~Treatment+Feeding+Container, data = fakeexp))
+
+```
+
+
+
+## Centered plots to show means more easily
+
+```{r lmScatterModeled}
+ggplot(fakeexp, aes(order, ReadCount)) +
+  geom_point(color=as.character(fakeexp$color)) + geom_smooth(method = lm) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) + 
+  xlab(label = "") + ylab(label = "Read Count") +
+  geom_vline(xintercept = 72)
+
+lm(ReadCount~1, data = fakeexp)
+
+
+ggplot(fakeexp, aes(order, ReadCount)) +
+  geom_point() + geom_smooth(method = lm) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) + 
+  xlab(label = "") + ylab(label = "Read Count") +
+  geom_vline(xintercept = 72) +
+  geom_hline(yintercept = 78.68 )
+
+summary(lm(ReadCount~1, data = fakeexp))
+
+```
+
+```{r ReadbyTreatmentModeled}
+ggplot(fakeexp, aes(Row, ReadCount, col=Treatment)) + 
+  geom_point(color=as.character(fakeexp$color)) + geom_smooth(method = lm) + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black")) + 
+  xlab(label = "") + ylab(label = "Read Count") +
+  geom_vline(xintercept = 24) +
+  geom_vline(xintercept = 72) +
+  geom_vline(xintercept = 120)+
+   scale_color_manual(values = c("black", "darkgreen","blue3"))
+
+
+summary(lm(ReadCount~Treatment, data = fakeexp))
+
+
+```
+
